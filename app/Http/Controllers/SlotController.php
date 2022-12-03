@@ -40,7 +40,7 @@ class SlotController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSlotRequest $request): JsonResponse
+    public function store(StoreSlotRequest $request): RedirectResponse
     {
         $result = false;
 
@@ -62,12 +62,12 @@ class SlotController extends Controller
             $slot->info->save();
 
             $result = true;
-
+            Flash::success('Создано');
         } catch (Exception $exception) {
             $error = $exception->getMessage();
         }
 
-        return Response::json(['result' => $result, 'error' => $error ?? '']);
+        return Redirect::route('slot.index');
     }
 
     /**
@@ -117,6 +117,8 @@ class SlotController extends Controller
             }
 
             DB::commit();
+
+            Flash::success('Сохранено');
         } catch (Exception $exception) {
             DB::rollBack();
             $errors[] = $exception->getMessage();
@@ -156,7 +158,7 @@ class SlotController extends Controller
             ;
         }
 
-        Flash::success("Slot id:$slot->slot_id was deleted");
+        Flash::success("Слот id:$slot->slot_id удален");
 
         return Redirect::route('slot.index');
     }

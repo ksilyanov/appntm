@@ -18,6 +18,6 @@ use App\Models\Slot
         {{ $slot->info->description }}
     </div>
     <div>
-        Доступно: {{ $slot->info->capacity }} / Цена: {{ $slot->info->price }}
+        {{ __('model/slot.capacity') }}: {{ $slot->info->capacity }} / {{ __('model/slot.price') }}: {{ $slot->info->price }}
     </div>
 @endsection
