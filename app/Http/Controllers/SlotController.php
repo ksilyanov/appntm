@@ -5,9 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSlotRequest;
 use App\Http\Requests\UpdateSlotRequest;
 use App\Models\Slot;
+use Illuminate\Support\Facades\DB;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Laracasts\Flash\Flash;
+use Response;
+use Throwable;
 
 class SlotController extends Controller
 {
@@ -26,7 +32,7 @@ class SlotController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
         return view('slot.create', ['slot' => new Slot()]);
     }
@@ -57,17 +63,17 @@ class SlotController extends Controller
 
             $result = true;
 
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $error = $exception->getMessage();
         }
 
-        return \Response::json(['result' => $result, 'error' => $error ?? '']);
+        return Response::json(['result' => $result, 'error' => $error ?? '']);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Slot $slot)
+    public function show(Slot $slot): View
     {
         return view('slot.show', ['slot' => $slot]);
     }
@@ -75,19 +81,20 @@ class SlotController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Slot $slot)
+    public function edit(Slot $slot): View
     {
         return view('slot.edit', ['slot' => $slot]);
     }
 
     /**
      * Update the specified resource in storage.
+     * @throws Throwable
      */
-    public function update(UpdateSlotRequest $request, Slot $slot)
+    public function update(UpdateSlotRequest $request, Slot $slot): RedirectResponse
     {
         $errors = [];
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $result = $slot->update([
                 'from' => $request->input('from'),
@@ -95,7 +102,7 @@ class SlotController extends Controller
             ]);
 
             if (!$result) {
-                throw new \Exception('Error occurred while updating');
+                throw new Exception('Error occurred while updating');
             }
 
             $result = $slot->info->update([
@@ -106,12 +113,12 @@ class SlotController extends Controller
             ]);
 
             if (!$result) {
-                throw new \Exception('Error occurred while updating');
+                throw new Exception('Error occurred while updating');
             }
 
-            \DB::commit();
-        } catch (\Exception $exception) {
-            \DB::rollBack();
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollBack();
             $errors[] = $exception->getMessage();
         }
 
@@ -123,12 +130,34 @@ class SlotController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Slot  $slot
-     * @return \Illuminate\Http\Response
+     * @throws Throwable
      */
-    public function destroy(Slot $slot)
+    public function destroy(Slot $slot): RedirectResponse
     {
-        //
+        $errors = [];
+        try {
+            DB::beginTransaction();
+
+            $result = $slot->delete();
+
+            if (!$result) {
+                throw new Exception('Error occurred while deleting');
+            }
+
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollBack();
+            $errors[] = $exception->getMessage();
+        }
+
+        if (count($errors) > 0) {
+            return Redirect::route('slot.edit', ['slot' => $slot])
+                ->withErrors($errors)
+            ;
+        }
+
+        Flash::success("Slot id:$slot->slot_id was deleted");
+
+        return Redirect::route('slot.index');
     }
 }

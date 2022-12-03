@@ -9,10 +9,6 @@ use App\Models\Slot
 
 @section('content')
 
-<?php dump(get_defined_vars()); ?>
-
-{{ $slot->info->name }}
-
 @if ($errors->any())
     <div class="alert alert-danger">
         <ul>
@@ -23,36 +19,44 @@ use App\Models\Slot
     </div>
 @endif
 
-{{ Form::model($slot, [
-    'route' => ['slot.update', $slot]
+{{ Form::open([
+    'route' => ['slot.update', $slot],
 ]) }}
     @method('put')
     <div>
         {{ Form::label('from', __('model/slot.from')) }}:
-        {{ Form::datetimeLocal('from') }}
+        {{ Form::datetimeLocal('from', $slot->from) }}
         {{ Form::label('to', __('model/slot.to')) }}:
-        {{ Form::datetimeLocal('to') }}
+        {{ Form::datetimeLocal('to', $slot->to) }}
     </div>
     <br>
     <div>
         {{ Form::label('info[name]', __('model/slot.name')) }}:<br>
-        {{ Form::text('info[name]') }}
+        {{ Form::text('info[name]', $slot->info->name) }}
     </div>
     <br>
     <div>
         {{ Form::label('info[description]', __('model/slot.description')) }}:<br>
-        {{ Form::textarea('info[description]') }}
+        {{ Form::textarea('info[description]', $slot->info->description) }}
     </div>
     <br>
     <div>
         {{ Form::label('info[capacity]', __('model/slot.capacity')) }}:<br>
-        {{ Form::number('info[capacity]') }}<br>
+        {{ Form::number('info[capacity]', $slot->info->capacity) }}<br>
         {{ Form::label('info[price]', __('model/slot.price')) }}:<br>
-        {{ Form::number('info[price]') }}
+        {{ Form::number('info[price]', $slot->info->price) }}
     </div>
     <br>
     <div>
         {{ Form::submit('Сохранить изменения') }}
     </div>
 {{ Form::close() }}
+<div style="margin-top: 2em">
+    {{ Form::open([
+        'route' => ['slot.destroy', $slot]
+    ]) }}
+    @method('delete')
+    {{ Form::submit('Удалить слот') }}
+    {{ Form::close() }}
+</div>
 @endsection
