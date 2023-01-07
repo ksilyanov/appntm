@@ -23,6 +23,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        if (config('app.log_query_on', false)) {
+            \DB::listen(function ($query): void {
+                file_put_contents(
+                    storage_path('logs/').'db_query.log',
+                    'Query: '.var_export([
+                        $query->sql,
+                        $query->bindings,
+                        $query->time,
+                    ], true).PHP_EOL,
+                    FILE_APPEND
+                );
+            });
+        }
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property int $slot_id
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read SlotInfo|null $info
  * @property-read SlotType|null $type
  * @property-read Collection<User> $users
+ *
+ * @method Builder forUser($userId)
  */
 class Slot extends Model
 {
@@ -48,5 +51,14 @@ class Slot extends Model
     public function users(): HasManyThrough
     {
         return $this->hasManyThrough(User::class, SlotToUser::class, 'slot_id', 'id');
+    }
+
+    public function scopeForUser(Builder $query, $userId): Builder
+    {
+        return $query->whereBelongsTo('users', function (Builder $query) {
+            $query->where('user_id', '=', 2);
+        });
+
+        return $query->where('id', '=', $userId);
     }
 }

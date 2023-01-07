@@ -21,7 +21,7 @@ class StoreSlotRequest extends FormRequest
     {
         return [
             'from' => 'required|date',
-            'to' => 'required|date',
+            'to' => 'required|date|after:from',
             'info.name' => 'required',
             'info.description' => 'required',
             'info.price' => 'numeric',

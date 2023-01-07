@@ -195,6 +195,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        /*
+         * Breadcrumbs
+         */
+        \DaveJamesMiller\Breadcrumbs\BreadcrumbsServiceProvider::class,
     ],
 
     /*
@@ -210,6 +214,9 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+        'Breadcrumbs' => DaveJamesMiller\Breadcrumbs\Facades\Breadcrumbs::class,
     ])->toArray(),
+
+    'log_query_on' => env('LOG_QUERY_ON', false),
 
 ];

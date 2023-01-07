@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSlotRequest;
 use App\Http\Requests\UpdateSlotRequest;
 use App\Models\Slot;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Contracts\View\View;
@@ -23,6 +24,19 @@ class SlotController extends Controller
     public function index(): View
     {
         $list = Slot::query()->get();
+
+        return view('slot.index', [
+            'list' => $list,
+        ]);
+    }
+
+    /**
+     * Display a listing for current user.
+     */
+    public function listForUser(): View
+    {
+        $user = Auth::user();
+        $list = (new \App\Models\Slot)->forUser(1)->get();
 
         return view('slot.index', [
             'list' => $list,

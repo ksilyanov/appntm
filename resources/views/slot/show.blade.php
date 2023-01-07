@@ -7,6 +7,10 @@ use App\Models\Slot
 @extends('main')
 @section('title', 'Show')
 
+@section('breadcrumbs')
+    {!! Breadcrumbs::render('slot.show', $slot) !!}
+@endsection
+
 @section('content')
     <div>
         {{ $slot->info->name }}

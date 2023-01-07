@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Mail\UserLogin;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\HasApiTokens;
+use Str;
 
 /**
  * @property int $id
@@ -54,5 +57,27 @@ class User extends Authenticatable
     public function slots(): HasManyThrough
     {
         return $this->hasManyThrough(Slot::class, SlotToUser::class, 'user_id', 'id', null, 'user_id');
+    }
+
+    public function loginTokens(): HasMany
+    {
+        return $this->hasMany(LoginToken::class);
+    }
+
+    public function sendLoginLink()
+    {
+        $textToken = Str::random(32);
+        $expiresAt = now()->addMinutes(15);
+
+        $this->loginTokens()->create([
+            'token' => hash('sha256', $textToken),
+            'expires_at' => $expiresAt,
+        ]);
+
+        $url = \URL::temporarySignedRoute('verify-login', $expiresAt, [
+            'token' => $textToken,
+        ]);
+
+        Mail::to($this->email)->queue(new UserLogin($textToken, $expiresAt));
     }
 }
